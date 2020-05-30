@@ -1,0 +1,2 @@
+rootProject.name='Rtsp_Tcp_NIO'
+include ':app'
