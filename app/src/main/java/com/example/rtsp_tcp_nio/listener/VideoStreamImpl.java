@@ -2,14 +2,14 @@ package com.example.rtsp_tcp_nio.listener;
 
 import android.util.Log;
 import com.example.rtsp_tcp_nio.Constant;
-import org.apache.mina.core.buffer.IoBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.mina.core.buffer.IoBuffer;
 
 public class VideoStreamImpl implements Runnable, VideoStreamInterface {
     private IoBuffer buffer;
-    private ConcurrentLinkedQueue<byte[]> streams;
     private IoBuffer frameBuffer;
+    private ConcurrentLinkedQueue<byte[]> streams;
     private AtomicBoolean status = new AtomicBoolean(false);
     private H264StreamInterface rawStream;
 
@@ -23,58 +23,59 @@ public class VideoStreamImpl implements Runnable, VideoStreamInterface {
     }
 
     public void run() {
-        while(this.status.get()) {
+        while (this.status.get()) {
             try {
-                synchronized(this) {
+                synchronized (this) {
                     this.wait(100L);
                 }
                 this.unpackRtp();
             } catch (Exception var4) {
+                Log.e(Constant.LOG_TAG, "unpackRtp Exception= :" + var4.toString());
                 var4.printStackTrace();
             }
         }
-
     }
 
     private void unpackRtp() {
-        if(!this.streams.isEmpty()) {
-            while(!this.streams.isEmpty()) {
-                this.buffer.put((byte[])this.streams.poll());
+        if (!this.streams.isEmpty()) {
+            while (!this.streams.isEmpty()) {
+                this.buffer.put((byte[]) this.streams.poll());
             }
         }
 
         this.buffer.flip();
-        if(this.buffer.remaining() > 4) {
+        if (this.buffer.remaining() > 4) {
             boolean next;
             do {
                 next = false;
                 int p = this.buffer.position();
                 byte hflag = this.buffer.get();
-                if(hflag == 36) {
+                if (hflag == 36) {
                     this.buffer.get();
                     short len = this.buffer.getShort();
                     next = len <= this.buffer.remaining();
-                    if(next) {
+                    if (next) {
+                        if (len < 0) continue;
                         byte[] cc = new byte[len];
                         this.buffer.get(cc);
                         IoBuffer frame = IoBuffer.wrap(cc);
                         byte rpth2 = frame.get(1);
                         short seq = frame.getShort(2);
                         boolean m = (rpth2 & 128) == 128;
-                        Log.e(Constant.LOG_TAG,"seq:[" + seq + "],end:[" + m + "]");
+                        Log.e(Constant.LOG_TAG, "seq:[" + seq + "],end:[" + m + "]");
                         frame.position(12);
                         byte h1 = frame.get();
                         byte h2 = frame.get();
-                        byte nal = (byte)(h1 & 31);
+                        byte nal = (byte) (h1 & 31);
                         int flag = h2 & 224;
-                        byte nal_fua = (byte)(h1 & 224 | h2 & 31);
-                        if(nal == 28) {
+                        byte nal_fua = (byte) (h1 & 224 | h2 & 31);
+                        if (nal == 28) {
                             frame.position(14);
-                            if(flag == 128) {
+                            if (flag == 128) {
                                 this.frameBuffer.putInt(1);
                                 this.frameBuffer.put(nal_fua);
                                 this.frameBuffer.put(frame);
-                            } else if(flag == 64) {
+                            } else if (flag == 64) {
                                 this.frameBuffer.put(frame);
                             } else {
                                 this.frameBuffer.put(frame);
@@ -85,7 +86,7 @@ public class VideoStreamImpl implements Runnable, VideoStreamInterface {
                             this.frameBuffer.put(frame);
                         }
 
-                        if(m) {
+                        if (m) {
                             this.frameBuffer.flip();
                             byte[] newFrame = new byte[this.frameBuffer.remaining()];
                             this.frameBuffer.get(newFrame);
@@ -96,11 +97,10 @@ public class VideoStreamImpl implements Runnable, VideoStreamInterface {
                         this.buffer.position(p);
                     }
                 }
-            } while(next && this.buffer.remaining() > 4);
+            } while (next && this.buffer.remaining() > 4);
 
             this.buffer.compact();
         }
-
     }
 
     public void onVideoStream(byte[] stream) {
@@ -113,10 +113,9 @@ public class VideoStreamImpl implements Runnable, VideoStreamInterface {
     }
 
     public void releaseResource() {
-        if(this.status.compareAndSet(true, false)) {
+        if (this.status.compareAndSet(true, false)) {
             this.streams.clear();
             this.waiteUp();
         }
-
     }
 }

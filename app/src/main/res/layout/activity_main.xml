@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
     android:orientation="vertical"
-    tools:ignore="MissingDefaultResource">
+    tools:ignore="MissingDefaultResource"
+    >
 
     <EditText
         android:id="@+id/rtsp_edt"
@@ -15,9 +14,21 @@
         android:hint="rtsp://192.168.1.100:8554/vc"
          />
     <Button
-        android:id="@+id/rtsp_btn"
+        android:id="@+id/btn_rtsp_pull"
         android:text="Rtsp拉流"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_rtsp_sv"
+        android:text="Rtsp拉流并且SurfaceView显示"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <Button
+        android:id="@+id/btn_rtsp_tv"
+        android:text="Rtsp拉流并且TextureView显示"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>

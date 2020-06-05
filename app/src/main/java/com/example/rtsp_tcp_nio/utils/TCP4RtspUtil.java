@@ -1,12 +1,20 @@
 package com.example.rtsp_tcp_nio.utils;
 
-import com.example.rtsp_tcp_nio.coder.RtpDecoder;
-import com.example.rtsp_tcp_nio.coder.RtpEncoder;
 import com.example.rtsp_tcp_nio.bean.RtpRequestModel;
 import com.example.rtsp_tcp_nio.bean.RtpResponseModel;
+import com.example.rtsp_tcp_nio.coder.RtpDecoder;
+import com.example.rtsp_tcp_nio.coder.RtpEncoder;
 import com.example.rtsp_tcp_nio.listener.RtspInterface;
 import com.example.rtsp_tcp_nio.listener.VideoStreamInterface;
-
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -17,15 +25,6 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TCP4RtspUtil implements RtspInterface {
     private int port;
@@ -59,10 +58,10 @@ public class TCP4RtspUtil implements RtspInterface {
             this.parseUrl(this.mediaUrl);
             this.connector = new NioSocketConnector();
             this.connector.setConnectTimeoutMillis(5000L);
-            this.connector.getSessionConfig().setReadBufferSize(8192);
-            this.connector.getSessionConfig().setMaxReadBufferSize(65536);
-            this.connector.getSessionConfig().setReceiveBufferSize(65536);
-            this.connector.getSessionConfig().setSendBufferSize(65536);
+            this.connector.getSessionConfig().setReadBufferSize(819200);
+            this.connector.getSessionConfig().setMaxReadBufferSize(6553600);
+            this.connector.getSessionConfig().setReceiveBufferSize(6553600);
+            this.connector.getSessionConfig().setSendBufferSize(6553600);
             this.connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new RtpEncoder(), new RtpDecoder()));
             this.connector.getFilterChain().addLast("_io_c_write", new ExecutorFilter(8, new IoEventType[]{IoEventType.WRITE}));
             this.connector.setHandler(new TCP4RtspUtil.TcpMediaClientHandler());
@@ -292,3 +291,4 @@ public class TCP4RtspUtil implements RtspInterface {
         }
     }
 }
+

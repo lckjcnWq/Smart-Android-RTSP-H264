@@ -12,13 +12,14 @@ import com.example.rtsp_tcp_nio.R;
 import com.example.rtsp_tcp_nio.coder.RtspDecoder;
 import com.example.rtsp_tcp_nio.listener.H264StreamInterface;
 import com.example.rtsp_tcp_nio.listener.VideoStreamImpl;
+import com.example.rtsp_tcp_nio.utils.AppUtils;
 import com.example.rtsp_tcp_nio.utils.TCP4RtspUtil;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class RtspActivity extends AppCompatActivity{
+public class RtspPullStreamActivity extends AppCompatActivity {
     private String filePath;
 
     private boolean isFirst = true;
@@ -26,7 +27,7 @@ public class RtspActivity extends AppCompatActivity{
     private RtspDecoder mPlayer = null;
     private String rtsp_url;
     private TCP4RtspUtil client;
-    private String tag=RtspActivity.class.getName();
+    private String tag = RtspPullStreamActivity.class.getName();
     private TextView tv_show;
 
     @Override
@@ -61,7 +62,7 @@ public class RtspActivity extends AppCompatActivity{
             public void process(final byte[] stream) {
                 try {
                     this.out.write(stream);
-                    if(isIFrame(stream)){
+                    if (AppUtils.isIFrame(stream)) {
 //                        Log.i(tag,"我是I帧");
                     }else {
 //                        Log.i(tag,"我是B帧");
@@ -85,14 +86,6 @@ public class RtspActivity extends AppCompatActivity{
             }
         }));
         client.doStart();
-    }
-
-    boolean isIFrame(byte[] data) {
-        int framType = data[4] & 0x1F;
-        if(framType == 5 || framType == 7 || framType == 8) {
-            return true;
-        }
-        return false;
     }
 
     @Override
