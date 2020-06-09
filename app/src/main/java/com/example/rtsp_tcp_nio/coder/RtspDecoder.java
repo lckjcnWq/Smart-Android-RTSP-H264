@@ -61,7 +61,7 @@ public class RtspDecoder {
             isRuning = true;
             Log.i(tag, "initMediaCodec  ------>");
             new Thread(new Runnable() {
-                @Override
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP) @Override
                 public void run() {
                     runDecodeVideoThread();
                 }
