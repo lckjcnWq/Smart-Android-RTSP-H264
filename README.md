@@ -1,6 +1,6 @@
 ### RTSP长连接进行H264拉流
 
-本案例是基于RTSP协议进行H264拉流的案列，并且把H264流以文件的格式保存到本地以及显示在常见的TextureView或者SurfaceView上
+本案例是基于RTSP协议进行H264拉流的案列，并且把H264流以文件的格式保存到本地以及通过mediaCodec显示在常见的TextureView或者SurfaceView上
 
 ### 当前内容
 
